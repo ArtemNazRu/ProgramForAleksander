@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F4A38">
+<title>Финансовый путь Александра</title>
+<style>
+@font-face{font-family:"Unbounded";src:url("fonts/Unbounded.ttf") format("truetype");font-weight:200 900;font-display:swap}
+@font-face{font-family:"Golos Text";src:url("fonts/GolosText.ttf") format("truetype");font-weight:400 900;font-display:swap}
+:root{
+  --bg:#E9F0E7; --surface:#F7FAF5; --ink:#17251E; --muted:#56665D; --line:#C9D6CB;
+  --forest:#1F4A38; --on-forest:#F7FAF5; --gold:#A87810; --gold-soft:#F3E3B5;
+  --plum:#6B2D5C; --plum-soft:#EADCE6; --hero-bg:#1F4A38; --hero-ink:#F1F6EE; --hero-muted:#B9CDBF;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1813; --surface:#16241D; --ink:#E4EDE6; --muted:#9AAEA2; --line:#2A3D33;
+    --forest:#8FD1AE; --on-forest:#0E1813; --gold:#E2B24A; --gold-soft:#3A2F12;
+    --plum:#D49BC4; --plum-soft:#36202F; --hero-bg:#13301F; --hero-ink:#E4EDE6; --hero-muted:#93AE9E;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1813; --surface:#16241D; --ink:#E4EDE6; --muted:#9AAEA2; --line:#2A3D33;
+  --forest:#8FD1AE; --on-forest:#0E1813; --gold:#E2B24A; --gold-soft:#3A2F12;
+  --plum:#D49BC4; --plum-soft:#36202F; --hero-bg:#13301F; --hero-ink:#E4EDE6; --hero-muted:#93AE9E;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--hero-bg)}
+.app{max-width:520px;margin:0 auto;padding-bottom:96px}
+h1,h2,h3{font-family:"Unbounded","Golos Text",system-ui,sans-serif;font-weight:700;margin:0;line-height:1.2}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+
+/* Hero: the banknote */
+.hero{position:relative;overflow:hidden;background:var(--hero-bg);color:var(--hero-ink);padding:28px 22px 26px;border-radius:0 0 28px 28px}
+.hero svg.guilloche{position:absolute;right:-90px;top:-70px;width:340px;height:340px;opacity:.28;pointer-events:none}
+.hero .hello{font-size:15px;color:var(--hero-muted);margin:0 0 4px}
+.hero h1{font-size:24px;font-weight:500;max-width:14ch}
+.coinrow{display:flex;align-items:center;gap:16px;margin-top:22px;position:relative}
+.coin{flex:none;width:92px;height:92px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,#F6D98A,#C9971F 70%,#9C7210);
+  box-shadow:inset 0 0 0 4px rgba(255,255,255,.25),inset 0 0 0 7px rgba(120,80,0,.35);
+  color:#3B2A05;text-align:center}
+.coin b{font-family:"Unbounded",sans-serif;font-size:28px;line-height:1;display:block}
+.coin span{font-size:12px;font-weight:600}
+.rankbox{flex:1;min-width:0}
+.rankbox .rank{font-family:"Unbounded",sans-serif;font-size:17px;font-weight:500}
+.rankbox .next{font-size:14px;color:var(--hero-muted);margin-top:2px}
+.bar{height:8px;border-radius:8px;background:rgba(255,255,255,.16);margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:#E2B24A;border-radius:8px;transition:width .5s ease}
+.sync{font-size:12px;color:var(--hero-muted);margin-top:16px;position:relative}
+
+/* Sections */
+main{padding:22px 18px 0}
+.view[hidden]{display:none}
+.sectionhead{margin:4px 4px 14px}
+.sectionhead h2{font-size:19px}
+.sectionhead p{margin:4px 0 0;color:var(--muted);font-size:14px}
+
+/* Path */
+.path{list-style:none;margin:0;padding:0;position:relative}
+.path::before{content:"";position:absolute;left:27px;top:20px;bottom:20px;width:2px;background:var(--line)}
+.path li{position:relative}
+.weekbtn{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:none;border:0;padding:10px 6px;cursor:pointer;border-radius:16px}
+.weekbtn:hover:not([disabled]){background:var(--surface)}
+.weekbtn[disabled]{cursor:not-allowed}
+.node{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative;z-index:1;
+  font-family:"Unbounded",sans-serif;font-size:15px;background:var(--surface);border:2px solid var(--line);color:var(--muted)}
+.node.current{border-color:var(--forest);color:var(--forest);box-shadow:0 0 0 5px var(--bg),0 0 0 7px color-mix(in srgb,var(--forest) 35%,transparent)}
+.node.done{background:var(--gold);border-color:var(--gold);color:var(--on-forest)}
+.weekmeta{flex:1;min-width:0}
+.weekmeta .wn{font-size:13px;color:var(--muted)}
+.weekmeta .wt{font-weight:600;font-size:16px;line-height:1.3}
+.weekbtn[disabled] .wt{color:var(--muted)}
+.wstars{flex:none;font-size:13px;color:var(--gold);font-weight:600;white-space:nowrap}
+
+/* Week detail */
+.back{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:6px 8px 6px 2px;color:var(--muted);cursor:pointer;font-size:15px}
+.weekhead{margin:8px 4px 16px}
+.weekhead .wn{color:var(--gold);font-weight:600;font-size:14px}
+.weekhead h2{font-size:24px;margin-top:4px}
+.lesson{background:var(--surface);border-radius:20px;padding:18px 18px 6px;border:1px solid var(--line)}
+.lesson h3{font-size:14px;font-weight:500;color:var(--muted);margin-bottom:8px;font-family:"Golos Text",sans-serif}
+.lesson p{margin:0 0 12px;max-width:62ch}
+.block{margin-top:22px}
+.block > h3{font-size:16px;margin:0 4px 10px}
+.tasks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.task label{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);cursor:pointer}
+.task input{appearance:none;flex:none;width:24px;height:24px;margin:0;border-radius:8px;border:2px solid var(--muted);display:grid;place-items:center;cursor:pointer;background:var(--surface)}
+.task input:checked{background:var(--forest);border-color:var(--forest)}
+.task input:checked::after{content:"";width:6px;height:11px;border:solid var(--on-forest);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.task input:disabled{cursor:default}
+.task.checked span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.task .pts{margin-left:auto;flex:none;font-size:13px;color:var(--gold);font-weight:600}
+.complete{display:block;width:100%;margin-top:18px;padding:16px;border:0;border-radius:18px;background:var(--forest);color:var(--on-forest);font-weight:600;font-size:16px;cursor:pointer}
+.complete[disabled]{background:var(--line);color:var(--muted);cursor:not-allowed}
+.donebadge{margin-top:18px;padding:14px 16px;border-radius:18px;background:var(--gold-soft);color:var(--ink);font-weight:500;text-align:center}
+.extras{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.extra{display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.extra a{flex:1;min-width:0;color:var(--ink);text-decoration:none;display:grid;gap:2px}
+.extra .xt{font-weight:500;line-height:1.35}
+.extra .xs{font-size:13px;color:var(--muted)}
+.extra a:hover .xt{text-decoration:underline}
+.xbtn{flex:none;padding:8px 10px;border-radius:12px;border:1.5px solid var(--gold);background:none;color:var(--gold);font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap}
+.extra.read .xbtn{background:var(--gold);color:var(--on-forest)}
+
+/* Calculator */
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px}
+.calc .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.calc label{font-size:13px;color:var(--muted);display:grid;gap:4px}
+.calc input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+.calc .out{margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.calc .out div{background:var(--bg);border-radius:12px;padding:10px 4px}
+.calc .out small{display:block;font-size:12px;color:var(--muted)}
+.calc .out b{font-family:"Unbounded",sans-serif;font-size:13px;font-weight:500}
+.calc .out .big b{color:var(--gold)}
+
+/* Books */
+.bookcard{display:flex;gap:14px;padding:16px;border-radius:20px;background:var(--plum-soft);border:0;width:100%;text-align:left;cursor:pointer}
+.spine{flex:none;width:44px;height:64px;border-radius:4px 8px 8px 4px;background:var(--plum);position:relative}
+.spine::after{content:"";position:absolute;left:6px;top:0;bottom:0;width:2px;background:rgba(255,255,255,.3)}
+.bookcard .bt{font-weight:600;line-height:1.3}
+.bookcard .ba{font-size:14px;color:var(--muted)}
+.bookcard .bw{font-size:14px;margin-top:6px}
+.books{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.book{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;display:flex;gap:14px}
+.book.read .spine{background:var(--gold)}
+.book .bt{font-weight:600;line-height:1.3}
+.book .ba{font-size:14px;color:var(--muted)}
+.book p{margin:8px 0 10px;font-size:15px}
+.book .tags{display:flex;flex-wrap:wrap;gap:6px;font-size:12px}
+.tag{padding:3px 9px;border-radius:20px;background:var(--bg);color:var(--muted)}
+.readbtn{margin-top:12px;padding:9px 14px;border-radius:12px;border:1.5px solid var(--plum);background:none;color:var(--plum);font-weight:600;cursor:pointer;font-size:14px}
+.book.read .readbtn{border-color:var(--gold);background:var(--gold);color:var(--on-forest)}
+.book.flash{animation:flash 1.2s ease}
+@keyframes flash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 3px var(--plum)}}
+
+/* Rewards */
+.ranks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.rankrow{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px 16px}
+.rankrow.got{border-color:var(--gold)}
+.rankrow .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.rankrow .rn{font-family:"Unbounded",sans-serif;font-size:15px;font-weight:500}
+.rankrow .rs{font-size:14px;color:var(--gold);font-weight:600;white-space:nowrap}
+.rankrow input{margin-top:10px;font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:9px 12px;width:100%}
+.rules{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin-bottom:18px;font-size:15px}
+.rules p{margin:4px 0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;text-align:center}
+.stats div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 6px}
+.stats b{font-family:"Unbounded",sans-serif;font-size:20px;font-weight:500;display:block}
+.stats small{font-size:12px;color:var(--muted)}
+.reset{margin:26px auto 0;display:block;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:14px;padding:8px}
+.reset.armed{color:#B3261E}
+
+/* Tabbar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+.tab{background:none;border:0;padding:10px 4px 12px;display:grid;justify-items:center;gap:2px;font-size:12px;color:var(--muted);cursor:pointer}
+.tab svg{width:24px;height:24px}
+.tab[aria-current="page"]{color:var(--forest);font-weight:600}
+
+/* Toast + burst */
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;
+  background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:500;z-index:30;transition:.3s ease;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.burst{position:fixed;inset:0;pointer-events:none;z-index:25}
+.burst span{position:absolute;font-size:22px;color:#E2B24A;animation:fly 1.1s ease-out forwards}
+@keyframes fly{from{transform:translate(0,0) scale(.6);opacity:1}to{transform:translate(var(--dx),var(--dy)) scale(1.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <svg class="guilloche" viewBox="-170 -170 340 340" aria-hidden="true"></svg>
+    <p class="hello">Привет, Александр</p>
+    <h1>Финансовый путь до 18</h1>
+    <div class="coinrow">
+      <div class="coin" aria-label="Звёзды"><div><b id="starCount">0</b><span>звёзд</span></div></div>
+      <div class="rankbox">
+        <div class="rank" id="rankName">Новичок</div>
+        <div class="next" id="rankNext"></div>
+        <div class="bar"><i id="rankBar" style="width:0"></i></div>
+      </div>
+    </div>
+    <div class="sync" id="syncNote">Прогресс сохраняется на этом телефоне</div>
+  </header>
+
+  <main>
+    <section class="view" id="view-path">
+      <div class="sectionhead">
+        <h2>12 недель</h2>
+        <p>Каждое задание — 1 звезда. Закрытая неделя — ещё 2 сверху и открывает следующую.</p>
+      </div>
+      <ol class="path" id="pathList"></ol>
+    </section>
+
+    <section class="view" id="view-week" hidden></section>
+
+    <section class="view" id="view-books" hidden>
+      <div class="sectionhead">
+        <h2>Книжная полка</h2>
+        <p>За каждую прочитанную книгу — 5 звёзд. Начни с лёгких.</p>
+      </div>
+      <ul class="books" id="bookList"></ul>
+      <div class="rules" style="margin-top:18px"><p><b>Полезные сайты</b></p><p>fincult.info — финансовая грамотность от Банка России</p><p>cbr.ru — ключевая ставка, инфляция, список нелегальных компаний</p><p>moex.com — котировки акций, облигаций и фондов</p></div>
+    </section>
+
+    <section class="view" id="view-rewards" hidden>
+      <div class="sectionhead">
+        <h2>Награды</h2>
+        <p>Договоритесь с родителями, что ждёт на каждом ранге, и впишите сюда.</p>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="rules">
+        <p>★ 1 — за каждое задание</p>
+        <p>★ 2 — бонус за полностью закрытую неделю</p>
+        <p>★ 5 — за каждую прочитанную книгу</p>
+        <p>★ 1 — за статью из дополнительного чтения</p>
+      </div>
+      <ul class="ranks" id="rankList"></ul>
+      <button class="reset" id="resetBtn" type="button">Сбросить весь прогресс</button>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar" aria-label="Разделы">
+  <div class="in">
+    <button class="tab" data-tab="path" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/></svg>
+      Путь
+    </button>
+    <button class="tab" data-tab="books">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 21.5 2.5 2.5 0 0 0 6.5 24"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19"/></svg>
+      Книги
+    </button>
+    <button class="tab" data-tab="rewards">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2.8l2.8 5.7 6.3.9-4.5 4.4 1 6.2L12 17l-5.6 3 1-6.2L3 9.4l6.3-.9z"/></svg>
+      Награды
+    </button>
+  </div>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="burst" id="burst"></div>
+
+<script>
+const BOOKS = [
+  {id:"babylon", title:"Самый богатый человек в Вавилоне", author:"Джордж Клейсон", level:"лёгкая", why:"Короткие притчи о том, как откладывать часть каждого дохода и не терять деньги. Читается за пару вечеров."},
+  {id:"neighbor", title:"Мой сосед — миллионер", author:"Томас Стэнли, Уильям Данко", level:"лёгкая", why:"Исследование реальных богатых людей: большинство из них живут скромнее, чем кажется. Хорошо отрезвляет от «понтов»."},
+  {id:"ramit", title:"Я научу тебя быть богатым", author:"Рамит Сети", level:"лёгкая", why:"Практичная книга для молодых: банки, автоматические сбережения, траты без чувства вины на то, что важно."},
+  {id:"housel", title:"Психология денег", author:"Морган Хаузел", level:"лёгкая", why:"Почему поведение важнее формул. Короткие главы, много историй. Одна из лучших первых книг о деньгах."},
+  {id:"richdad", title:"Богатый папа, бедный папа", author:"Роберт Кийосаки", level:"лёгкая", why:"Мотивирует думать об активах и пассивах. Читай критически: многие конкретные советы автора спорные — обсудите это вместе."},
+  {id:"chang", title:"Как устроена экономика", author:"Ха-Джун Чанг", level:"средняя", why:"Простое и честное введение в экономику: инфляция, банки, государство, разные школы мысли."},
+  {id:"kahneman", title:"Думай медленно… решай быстро", author:"Даниэль Канеман", level:"сложная", why:"Нобелевский лауреат о том, как мозг обманывает нас при принятии решений. Можно читать по главам."},
+  {id:"freako", title:"Фрикономика", author:"Стивен Левитт, Стивен Дабнер", level:"лёгкая", why:"Весёлая книга о том, как стимулы управляют поведением людей. Учит смотреть на мир глазами экономиста."},
+  {id:"malkiel", title:"Случайная прогулка по Уолл-стрит", author:"Бертон Малкиел", level:"средняя", why:"Классика о том, как устроены рынки, облигации и акции, и почему угадать рынок почти невозможно."},
+  {id:"graham", title:"Разумный инвестор", author:"Бенджамин Грэм", level:"сложная", why:"Библия стоимостного инвестирования. Серьёзное чтение — лучше после 18, с комментариями к изданию."},
+  {id:"bogle", title:"Руководство разумного инвестора", author:"Джон Богл", level:"средняя", why:"Основатель первых индексных фондов объясняет, почему «купить весь рынок» с низкими комиссиями обычно выигрывает."},
+  {id:"taleb", title:"Одураченные случайностью", author:"Нассим Талеб", level:"средняя", why:"О роли удачи в успехе и о том, почему не стоит верить «гениям» с одним удачным годом."},
+  {id:"lewis", title:"Большая игра на понижение", author:"Майкл Льюис", level:"средняя", why:"Бонус: захватывающая история кризиса 2008 года. Есть фильм — посмотрите после книги вместе."}
+];
+
+const WEEKS = [
+  {title:"Зачем мне деньги", book:"babylon",
+   lesson:["Деньги — это инструмент, а не цель. Финансовая грамотность начинается с вопроса: чего я хочу через год, через 5 лет, через 20?",
+           "Цель без суммы и срока — просто мечта. Хорошая цель конкретная, измеримая, реальная, важная лично тебе и с датой. Например: «150 000 ₽ на ноутбук к сентябрю 2027»."],
+   tasks:["Запиши 3 цели: на 1 год, на 5 лет и на 10+ лет — каждую с суммой в рублях и сроком",
+          "Посчитай все свои доходы за прошлый месяц: карманные, подработка, подарки",
+          "Начни записывать каждую трату — в заметках или в приложении банка — всю неделю",
+          "Спроси родителей об одной их финансовой ошибке и одном удачном решении"]},
+  {title:"Бюджет: куда уходят деньги", book:"neighbor",
+   lesson:["Бюджет — это план, а не запрет. Популярное правило 50/30/20: половина на необходимое, 30% на желания, 20% на сбережения.",
+           "Главный принцип — «сначала заплати себе»: откладывай в день, когда получил деньги, а не то, что осталось в конце месяца. Многие банки умеют делать это автоматически — с помощью «копилки» или автоперевода на накопительный счёт."],
+   tasks:["Разбей траты прошлой недели на категории: необходимое, желания, сбережения",
+          "Найди две «утечки» — мелкие регулярные траты: кофе, доставка, такси, донаты",
+          "Составь бюджет на следующий месяц и реши, какой процент будешь откладывать",
+          "Выпиши все подписки (музыка, кино, игры, сервисы банков) и посчитай их стоимость за год"]},
+  {title:"Банк, карта и мошенники", book:"ramit",
+   lesson:["Дебетовая карта тратит твои деньги. Кредитная — деньги банка, которые придётся вернуть, часто с процентами. Переводы по СБП приходят мгновенно — и так же мгновенно уходят к мошенникам.",
+           "Главные правила: банк никогда не просит код из SMS, пароль или перевести деньги на «безопасный счёт». «Служба безопасности банка», «следователь» или «сотрудник ЦБ» по телефону — это мошенники. Сразу клади трубку и звони в банк сам по номеру с карты.",
+           "Ещё одна ловушка для 18-летних — предложения «подзаработать», передав свою карту или пропуская через неё чужие деньги. Это называется дропперство, и за него в России грозит уголовная ответственность."],
+   tasks:["Изучи условия своей карты: комиссии, лимиты переводов по СБП, кешбэк",
+          "Найди на сайте fincult.info 3 схемы телефонного мошенничества и перескажи их своими словами",
+          "Вместе с родителями проверь защиту в банковском приложении и договоритесь о «кодовом слове» семьи на случай странных звонков",
+          "Объясни родителю, кто такие дропперы и почему нельзя никому давать свою карту"]},
+  {title:"Магия сложного процента", book:"housel", calc:true,
+   lesson:["Сложный процент — это проценты на проценты. Деньги приносят доход, а доход в следующем году тоже приносит доход. Чем раньше начал, тем сильнее работает время.",
+           "Правило 72: раздели 72 на годовую доходность в процентах — получишь примерное число лет, за которое сумма удвоится. При 12% годовых — примерно за 6 лет.",
+           "Важно: в рублях доходности выше, чем в евро или долларах, но и инфляция выше. Сравнивать всегда нужно с инфляцией — об этом неделя 6."],
+   tasks:["Поиграй с калькулятором: сколько вырастут 5 000 ₽ в месяц за 10, 20 и 40 лет при 10% годовых?",
+          "Посчитай по правилу 72, за сколько лет удвоятся деньги при 4%, 8% и 12%",
+          "Сравни: начать в 18 и вкладывать 10 лет — или начать в 28 и вкладывать 30 лет. Запиши вывод",
+          "Объясни сложный процент другу или однокласснику"]},
+  {title:"Подушка безопасности и долги", book:"richdad",
+   lesson:["Подушка безопасности — запас на 3–6 месяцев расходов на случай болезни, потери работы или поломки. Её держат на вкладе или накопительном счёте, и она нужна раньше, чем инвестиции.",
+           "Долг сам по себе не зло, но потребительские кредиты в России дорогие: смотри на ПСК — полную стоимость кредита, она указана в квадратной рамке в правом верхнем углу договора. В октябре 2026 года средняя ПСК по кредитам без залога была около 34% годовых, а у микрозаймов она бывает в разы выше.",
+           "Всё, что ты делаешь с долгами, записывается в кредитную историю. Через Госуслуги можно бесплатно её проверить и установить самозапрет на кредиты — защиту от мошенников."],
+   tasks:["Посчитай, какая подушка была бы нужна тебе в рублях, если бы ты жил отдельно: аренда, еда, транспорт, связь",
+          "Найди пример рассрочки, сплита или микрозайма и посчитай реальную переплату",
+          "Узнай вместе с родителями, что такое бюро кредитных историй и самозапрет на кредиты на Госуслугах",
+          "Сформулируй личное правило: «Я беру в долг, только если…»"]},
+  {title:"Инфляция и ключевая ставка", book:"chang",
+   lesson:["Инфляция — это рост цен со временем. Деньги, которые просто лежат, каждый год покупают меньше. Цель Банка России — инфляция около 4% в год.",
+           "Чтобы сдерживать цены, ЦБ меняет ключевую ставку. От неё зависят ставки по вкладам и кредитам: ставка выше — вклады выгоднее, кредиты дороже. В октябре 2026 года ЦБ оставил ставку на уровне 14%.",
+           "Реальная доходность = доходность минус инфляция. Вклад под 12% при инфляции 6% реально приносит около 6%."],
+   tasks:["Спроси родителей, сколько 10 лет назад стоили 5 привычных вещей, и сравни с сегодняшними ценами",
+          "Найди на сайте cbr.ru текущую ключевую ставку и годовую инфляцию",
+          "Посчитай реальную доходность вклада под 12% при инфляции 6% и при инфляции 10%",
+          "Объясни своими словами, почему ЦБ повышает ставку, когда цены растут быстро"]},
+  {title:"Психология денег и ловушки маркетинга", book:"kahneman",
+   lesson:["Решения о деньгах мы часто принимаем эмоционально. «Только сегодня», зачёркнутая цена, бесплатная доставка от суммы, «оплата частями», кешбэк баллами — всё продумано, чтобы ты тратил больше.",
+           "Простое противоядие — правило 48 часов: захотел спонтанную покупку — подожди двое суток. Если желание осталось, покупка, скорее всего, осознанная."],
+   tasks:["Найди 3 маркетинговых приёма на маркетплейсе или в приложении и опиши, как они работают",
+          "Применяй правило 48 часов ко всем спонтанным покупкам на этой неделе",
+          "Вспомни покупку, о которой жалеешь, и разбери, почему ты её сделал",
+          "Узнай текущий МРОТ и посчитай, сколько часов работы стоит вещь, которую ты хочешь"]},
+  {title:"Доход, работа и налоги", book:"freako",
+   lesson:["В 18 лет твой главный актив — ты сам: навыки, знания и время. Рост дохода от работы обычно даёт больше, чем первые инвестиции.",
+           "С зарплаты работодатель удерживает НДФЛ — для большинства 13%, при высоких доходах ставка выше. Подрабатывать можно как самозанятый: налог 4% с доходов от людей и 6% от компаний, всё оформляется в приложении «Мой налог».",
+           "С дохода от инвестиций тоже платят НДФЛ, а проценты по вкладам облагаются налогом, только если превышают необлагаемый лимит."],
+   tasks:["Найди 2 вакансии подработки для студента на hh.ru и сравни оплату за час",
+          "Посчитай: зарплата 60 000 ₽ до вычета НДФЛ — сколько получишь на руки?",
+          "Разберись, как стать самозанятым и какие налоги при этом платят",
+          "Составь список из 3 навыков, которые могут увеличить твой доход через 5 лет"]},
+  {title:"Вклады и облигации", book:"malkiel",
+   lesson:["Вклад — самый простой способ сберечь деньги. Вклады в российских банках застрахованы государством через АСВ до 1,4 млн ₽ в одном банке.",
+           "Облигация — это долг: ты одалживаешь деньги государству или компании, они платят купон и возвращают сумму в срок. Государственные облигации называются ОФЗ. Корпоративные облигации платят больше, потому что риск выше.",
+           "Риск и доходность всегда ходят парой: если кто-то обещает доход намного выше ставок по вкладам, спроси себя, где подвох."],
+   tasks:["Сравни ставки по годовым вкладам в трёх банках и проверь, входят ли они в систему страхования вкладов",
+          "Найди на сайте Мосбиржи доходность ОФЗ сроком около 10 лет",
+          "Объясни, почему облигации ненадёжной компании платят больше, чем ОФЗ",
+          "Нарисуй схему: кто кому платит в облигации и когда"]},
+  {title:"Акции: часть компании", book:"graham",
+   lesson:["Акция — это доля в бизнесе. Ты зарабатываешь, если компания растёт (цена акции увеличивается) или делится прибылью (дивиденды). Российские акции торгуются на Московской бирже, а её главный индикатор — индекс Мосбиржи (IMOEX).",
+           "В коротком сроке цена акции — во многом шум и эмоции. На длинной дистанции она в основном отражает результаты бизнеса."],
+   tasks:["Выбери российскую компанию, чьими продуктами пользуешься, и найди её выручку и прибыль за прошлый год",
+          "Посмотри график её акций на сайте Мосбиржи за 1 год и за 5 лет. Что заметно?",
+          "Узнай, платит ли эта компания дивиденды и сколько платила за последние годы",
+          "Напиши 5 предложений: купил бы ты эту акцию и почему"]},
+  {title:"Фонды, ИИС и диверсификация", book:"bogle", calc:true,
+   lesson:["Не клади все яйца в одну корзину. Биржевой фонд (БПИФ) на индекс Мосбиржи покупает сразу десятки крупнейших российских компаний — ты получаешь средний результат рынка за небольшую комиссию.",
+           "На длинной дистанции большинство активных управляющих отстают от индекса. Комиссия 1% в год кажется мелочью, но за 30 лет съедает заметную часть капитала.",
+           "С 18 лет можно самому открыть брокерский счёт. Для долгих вложений есть ИИС-3: государство возвращает часть налога и не берёт налог с дохода, если держать счёт долго (при открытии в 2026 году — не меньше 5 лет, дальше срок растёт). Деньги на ИИС-3 застрахованы до 1,4 млн ₽ на случай банкротства брокера."],
+   tasks:["Узнай, что такое индекс Мосбиржи и какие компании в нём самые крупные",
+          "Сравни годовые комиссии двух БПИФ на индекс Мосбиржи",
+          "В калькуляторе ниже сравни комиссию 1% и 0,2% за 30 лет. Какая разница в рублях?",
+          "Разберись вместе с родителями в условиях ИИС-3 и составь учебный портфель на бумаге"]},
+  {title:"Мошенничество, риск и твой план", book:"taleb",
+   lesson:["Гарантированная высокая доходность — главный признак мошенничества. Финансовые пирамиды, «сигналы» в Telegram, «инвестиционные кураторы» и криптопроекты от блогеров живут на деньгах новых участников.",
+           "Банк России ведёт список компаний с признаками нелегальной деятельности — проверяй любое «выгодное предложение» там.",
+           "Хороший план обычно скучный: подушка безопасности → ясные цели → регулярные вложения в широкий рынок → не дёргаться при падениях."],
+   tasks:["Прочитай историю МММ и опиши, как работала пирамида и чем она закончилась для вкладчиков",
+          "Найди на cbr.ru список компаний с признаками нелегальной деятельности и составь 5 красных флагов",
+          "Напиши свой финансовый план на одну страницу: цели, бюджет, подушка, как будешь инвестировать",
+          "Презентуй план родителям — это твой выпускной на этом пути"]}
+];
+
+const FC = "Финансовая культура, Банк России";
+const EXTRA = [
+  [{t:"Личный финансовый план: как превратить мечты в реальность", src:FC, url:"https://fincult.info/article/lichnyy-finansovyy-plan-kak-prevratit-mechty-v-realnost/"},
+   {t:"Мой первый финансовый план: как подростку накопить на мечту", src:FC, url:"https://fincult.info/article/moy-pervyy-finansovyy-plan-kak-podrostku-nakopit-na-mechtu/"}],
+  [{t:"Финансовый план: как составить бюджет и следовать ему", src:FC, url:"https://fincult.info/article/finansovyy-plan-semi/"}],
+  [{t:"Как быстро распознать мошенника: 5 признаков", src:FC, url:"https://fincult.info/article/kak-bystro-raspoznat-moshennika/"},
+   {t:"Дропперство: как мошенники вербуют посредников", src:"ВТБ, финансовая грамотность", url:"https://www.vtb.ru/fincult/lr/drop/"}],
+  [{t:"Сложный процент в инвестициях: почему это выгодно", src:"Финуслуги", url:"https://finuslugi.ru/navigator/investirovat/stat_slozhnyj_procent_v_investiciyakh_pochemu_ehto_vygodno"}],
+  [{t:"Финансовая подушка безопасности: что это и зачем она нужна", src:FC, url:"https://fincult.info/article/finansovaya-podushka-bezopasnosti-chto-eto-takoe-i-zachem-ona-nuzhna/"},
+   {t:"Полная стоимость кредита: что это и как ее рассчитывают", src:FC, url:"https://fincult.info/article/polnaya-stoimost-kredita-psk-chto-eto-takoe-i-kak-ee-rasschityvayut/"}],
+  [{t:"Инфляция: почему растут цены и кто может их сдержать", src:FC, url:"https://fincult.info/article/chto-takoe-inflyatsiya-i-otkuda-ona-beretsya/"}],
+  [{t:"Как распознать уловки маркетологов и перестать покупать ненужное", src:FC, url:"https://fincult.info/article/kak-razglyadet-ulovki-marketologov-i-perestat-pokupat-nenuzhnye-veshchi/"},
+   {t:"Разумное потребление: тратим с умом", src:FC, url:"https://fincult.info/article/razumnoe-potreblenie-tratim-s-umom/"}],
+  [{t:"Как стать самозанятым", src:"mos.ru", url:"https://www.mos.ru/otvet-ekonomika-i-biznes/kak-stat-samozanyatym/"},
+   {t:"Что такое самозанятость и кому она нужна", src:"hh.ru, Карьерная платформа", url:"https://career.hh.ru/article/chto-takoe-samozanyatost-i-komu-ona-nuzhna"}],
+  [{t:"ОФЗ простыми словами: доходность, риски и как купить", src:"Финуслуги", url:"https://finuslugi.ru/navigator/stat_obligacii_federalnogo_zajma_ofz_chto_za_bumagi_i_kak_na_nih_zarabotat"}],
+  [{t:"Что такое акции и как на них заработать", src:FC, url:"https://fincult.info/article/chto-takoe-aktsii-i-kak-na-nikh-zarabotat/"},
+   {t:"Как устроена фондовая биржа", src:FC, url:"https://fincult.info/article/kak-ustroena-fondovaya-birzha/"}],
+  [{t:"Биржевые фонды: что это и стоит ли в них вкладываться", src:FC, url:"https://fincult.info/article/birzhevye-fondy-ili-etf-chto-eto-i-stoit-li-vkladyvat-v-nikh-dengi/"},
+   {t:"Индивидуальный инвестиционный счет: как открыть ИИС-3", src:"Моифинансы.рф", url:"https://xn--80apaohbc3aw9e.xn--p1ai/article/individualnyy-investitsionnyy-schet-kak-otkryt-iis-3/"}],
+  [{t:"Финансовая пирамида: как ее распознать", src:FC, url:"https://fincult.info/article/finansovaya-piramida-kak-ee-raspoznat/"},
+   {t:"Как распознать финансовую пирамиду: история Понци и другие примеры", src:"Моифинансы.рф", url:"https://xn--80apaohbc3aw9e.xn--p1ai/article/raspoznat-finansovuyu-piramidu/"}]
+];
+
+const RANKS = [
+  {name:"Новичок", at:0},
+  {name:"Хранитель бюджета", at:15},
+  {name:"Знаток процентов", at:40},
+  {name:"Юный инвестор", at:70},
+  {name:"Финансовый стратег", at:100}
+];
+
+const KEY = "fin-path-alexander-v1";
+let state = {tasks:{}, weeks:{}, books:{}, extra:{}, rewards:{}, updatedAt:0};
+let currentWeek = null;
+let dbRef = null;
+
+function loadLocal(){
+  try{ const raw = localStorage.getItem(KEY); if(raw){ const s = JSON.parse(raw); if(s && typeof s==="object") state = Object.assign(state, s); } }catch(e){}
+}
+let saveTimer = null, writing = false, pending = false;
+function save(){
+  state.updatedAt = Date.now();
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+  if(dbRef){ clearTimeout(saveTimer); saveTimer = setTimeout(pushDb, 600); }
+}
+async function pushDb(){
+  if(!dbRef) return;
+  if(writing){ pending = true; return; }
+  writing = true;
+  try{ await dbRef.set(JSON.parse(JSON.stringify(state))); }catch(e){}
+  writing = false;
+  if(pending){ pending = false; pushDb(); }
+}
+
+/* Scoring */
+const taskKey = (w,i) => "w"+w+"-"+i;
+function weekTasksDone(w){ return WEEKS[w].tasks.filter((_,i)=>state.tasks[taskKey(w,i)]).length; }
+function stars(){
+  const t = Object.values(state.tasks).filter(Boolean).length;
+  const w = Object.values(state.weeks).filter(Boolean).length;
+  const b = Object.values(state.books).filter(Boolean).length;
+  const e = Object.values(state.extra||{}).filter(Boolean).length;
+  return t + w*2 + b*5 + e;
+}
+function unlocked(w){ return w===0 || !!state.weeks[w-1]; }
+function rankFor(s){ let r = RANKS[0], idx = 0; RANKS.forEach((x,i)=>{ if(s>=x.at){ r=x; idx=i; } }); return {r, idx}; }
+function plural(n, a, b, c){ const m10=n%10, m100=n%100; if(m10===1&&m100!==11) return a; if(m10>=2&&m10<=4&&(m100<12||m100>14)) return b; return c; }
+
+/* Hero */
+function renderHero(){
+  const s = stars();
+  document.getElementById("starCount").textContent = s;
+  document.querySelector(".coin span").textContent = plural(s,"звезда","звезды","звёзд");
+  const {r, idx} = rankFor(s);
+  document.getElementById("rankName").textContent = r.name;
+  const next = RANKS[idx+1];
+  const bar = document.getElementById("rankBar");
+  if(next){
+    const left = next.at - s;
+    document.getElementById("rankNext").textContent = "До ранга «"+next.name+"» — "+left+" "+plural(left,"звезда","звезды","звёзд");
+    bar.style.width = Math.round((s - r.at)/(next.at - r.at)*100)+"%";
+  }else{
+    document.getElementById("rankNext").textContent = "Высший ранг достигнут";
+    bar.style.width = "100%";
+  }
+}
+
+/* Path */
+function renderPath(){
+  const ol = document.getElementById("pathList");
+  ol.innerHTML = "";
+  const firstOpen = WEEKS.findIndex((_,i)=>!state.weeks[i]);
+  WEEKS.forEach((wk,i)=>{
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.className = "weekbtn"; btn.type = "button";
+    const open = unlocked(i), done = !!state.weeks[i];
+    if(!open) btn.disabled = true;
+    const node = document.createElement("span");
+    node.className = "node" + (done ? " done" : (i===firstOpen ? " current" : ""));
+    node.textContent = done ? "★" : (open ? (i+1) : "");
+    if(!open) node.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+    const meta = document.createElement("span");
+    meta.className = "weekmeta";
+    meta.innerHTML = '<div class="wn">Неделя '+(i+1)+'</div><div class="wt"></div>';
+    meta.querySelector(".wt").textContent = wk.title;
+    const st = document.createElement("span");
+    st.className = "wstars";
+    const got = weekTasksDone(i) + (done?2:0);
+    st.textContent = open ? got+" / 6 ★" : "";
+    btn.append(node, meta, st);
+    btn.setAttribute("aria-label", "Неделя "+(i+1)+": "+wk.title+(open ? (done ? ", завершена" : "") : ", закрыта"));
+    btn.addEventListener("click", ()=>openWeek(i));
+    li.append(btn); ol.append(li);
+  });
+}
+
+/* Week detail */
+function openWeek(i){
+  currentWeek = i;
+  showView("week");
+  renderWeek();
+  window.scrollTo(0,0);
+}
+function renderWeek(){
+  const i = currentWeek, wk = WEEKS[i];
+  const v = document.getElementById("view-week");
+  const done = !!state.weeks[i];
+  const book = BOOKS.find(b=>b.id===wk.book);
+  v.innerHTML = "";
+  const back = el("button","back"); back.type="button"; back.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Все недели';
+  back.onclick = ()=>{ showView("path"); };
+  const head = el("div","weekhead"); head.innerHTML = '<div class="wn">Неделя '+(i+1)+' из 12</div><h2></h2>'; head.querySelector("h2").textContent = wk.title;
+  const lesson = el("div","lesson"); lesson.innerHTML = "<h3>Коротко о главном</h3>";
+  wk.lesson.forEach(p=>{ const pe = document.createElement("p"); pe.textContent = p; lesson.append(pe); });
+  v.append(back, head, lesson);
+
+  if(wk.calc) v.append(calcBlock(i));
+
+  const tb = el("div","block"); tb.innerHTML = "<h3>Задания недели</h3>";
+  const ul = el("ul","tasks");
+  wk.tasks.forEach((t,ti)=>{
+    const k = taskKey(i,ti), on = !!state.tasks[k];
+    const li = el("li","task"+(on?" checked":""));
+    const lab = document.createElement("label");
+    const cb = document.createElement("input"); cb.type="checkbox"; cb.checked = on; cb.disabled = done;
+    const sp = document.createElement("span"); sp.textContent = t;
+    const pts = el("span","pts"); pts.textContent = "+1 ★";
+    cb.addEventListener("change", ()=>{
+      state.tasks[k] = cb.checked; save();
+      li.classList.toggle("checked", cb.checked);
+      renderHero(); updateCompleteBtn();
+    });
+    lab.append(cb, sp, pts); li.append(lab); ul.append(li);
+  });
+  tb.append(ul);
+  if(done){
+    const d = el("div","donebadge"); d.textContent = "Неделя закрыта. +2 ★ бонус получен"; tb.append(d);
+  }else{
+    const c = el("button","complete"); c.type="button"; c.id="completeBtn";
+    c.onclick = ()=>completeWeek(i);
+    tb.append(c);
+  }
+  v.append(tb);
+
+  const ex = EXTRA[i] || [];
+  if(ex.length){
+    const xb = el("div","block"); xb.innerHTML = "<h3>Дополнительное чтение</h3>";
+    const xl = el("ul","extras");
+    ex.forEach((x,xi)=>{
+      const k = "x"+i+"-"+xi;
+      const li = el("li","extra");
+      const a = document.createElement("a"); a.href = x.url; a.target = "_blank"; a.rel = "noopener";
+      a.innerHTML = '<span class="xt"></span><span class="xs"></span>';
+      a.querySelector(".xt").textContent = x.t;
+      a.querySelector(".xs").textContent = x.src + " ↗";
+      const xbtn = el("button","xbtn"); xbtn.type = "button";
+      const upd = ()=>{ const on = !!state.extra[k]; xbtn.textContent = on ? "Прочитано ★" : "Прочитал +1 ★"; xbtn.setAttribute("aria-pressed", on); li.classList.toggle("read", on); };
+      xbtn.onclick = ()=>{ state.extra[k] = !state.extra[k]; save(); upd(); renderHero(); if(state.extra[k]) toast("+1 ★ за статью"); };
+      upd(); li.append(a, xbtn); xl.append(li);
+    });
+    xb.append(xl); v.append(xb);
+  }
+
+  if(book){
+    const bb = el("div","block"); bb.innerHTML = "<h3>Книга недели</h3>";
+    const card = el("button","bookcard"); card.type="button";
+    card.innerHTML = '<span class="spine"></span><span><div class="bt"></div><div class="ba"></div><div class="bw"></div></span>';
+    card.querySelector(".bt").textContent = book.title;
+    card.querySelector(".ba").textContent = book.author;
+    card.querySelector(".bw").textContent = state.books[book.id] ? "Прочитана ★" : "Открыть на полке · +5 ★ за прочтение";
+    card.onclick = ()=>{ showView("books"); const n = document.getElementById("book-"+book.id); if(n){ n.scrollIntoView({block:"center"}); n.classList.remove("flash"); void n.offsetWidth; n.classList.add("flash"); } };
+    bb.append(card); v.append(bb);
+  }
+  updateCompleteBtn();
+}
+function updateCompleteBtn(){
+  const c = document.getElementById("completeBtn"); if(!c) return;
+  const n = weekTasksDone(currentWeek), total = WEEKS[currentWeek].tasks.length;
+  c.disabled = n < total;
+  c.textContent = n < total ? "Выполнено "+n+" из "+total : "Закрыть неделю и получить +2 ★";
+}
+function completeWeek(i){
+  state.weeks[i] = true; save();
+  renderHero(); renderWeek(); celebrate();
+  toast(i < WEEKS.length-1 ? "Неделя "+(i+1)+" закрыта! Открыта неделя "+(i+2) : "Весь путь пройден! Ты молодец");
+}
+
+/* Calculator */
+function calcBlock(i){
+  const b = el("div","block");
+  b.innerHTML = '<h3>Калькулятор роста</h3><div class="calc"><div class="grid">'+
+    '<label>В месяц, ₽<input type="number" inputmode="decimal" min="0" step="500" id="cM" value="5000"></label>'+
+    '<label>Лет<input type="number" inputmode="numeric" min="1" max="60" id="cY" value="'+(i===10?30:20)+'"></label>'+
+    '<label>Доходность в год, %<input type="number" inputmode="decimal" step="0.1" id="cR" value="10"></label>'+
+    '<label>Комиссия в год, %<input type="number" inputmode="decimal" step="0.1" min="0" id="cF" value="'+(i===10?1:0)+'"></label>'+
+    '</div><div class="out"><div><small>Вложено</small><b id="oIn"></b></div><div class="big"><small>Итог</small><b id="oEnd"></b></div><div><small>Прирост</small><b id="oGain"></b></div></div></div>';
+  setTimeout(()=>{ ["cM","cY","cR","cF"].forEach(id=>document.getElementById(id).addEventListener("input", calc)); calc(); },0);
+  return b;
+}
+function calc(){
+  const m = Math.max(0, parseFloat(document.getElementById("cM").value)||0);
+  const y = Math.min(60, Math.max(0, parseFloat(document.getElementById("cY").value)||0));
+  const r = (parseFloat(document.getElementById("cR").value)||0) - (parseFloat(document.getElementById("cF").value)||0);
+  const i = r/100/12, n = Math.round(y*12);
+  const end = i===0 ? m*n : m*((Math.pow(1+i,n)-1)/i)*(1+i);
+  const inv = m*n;
+  const f = x => new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0}).format(x)+" ₽";
+  document.getElementById("oIn").textContent = f(inv);
+  document.getElementById("oEnd").textContent = f(end);
+  document.getElementById("oGain").textContent = f(end-inv);
+}
+
+/* Books */
+function renderBooks(){
+  const ul = document.getElementById("bookList"); ul.innerHTML = "";
+  BOOKS.forEach(b=>{
+    const wi = WEEKS.findIndex(w=>w.book===b.id);
+    const read = !!state.books[b.id];
+    const li = el("li","book"+(read?" read":"")); li.id = "book-"+b.id;
+    li.innerHTML = '<span class="spine"></span><div><div class="bt"></div><div class="ba"></div><p></p><div class="tags"></div></div>';
+    li.querySelector(".bt").textContent = b.title;
+    li.querySelector(".ba").textContent = b.author;
+    li.querySelector("p").textContent = b.why;
+    const tags = li.querySelector(".tags");
+    const t1 = el("span","tag"); t1.textContent = b.level; tags.append(t1);
+    const t2 = el("span","tag"); t2.textContent = wi>=0 ? "к неделе "+(wi+1) : "бонус"; tags.append(t2);
+    const btn = el("button","readbtn"); btn.type="button";
+    btn.textContent = read ? "Прочитана ★ +5" : "Отметить прочитанной";
+    btn.setAttribute("aria-pressed", read);
+    btn.onclick = ()=>{
+      state.books[b.id] = !state.books[b.id]; save();
+      renderHero(); renderBooks();
+      if(state.books[b.id]){ celebrate(); toast("+5 ★ за книгу «"+b.title+"»"); }
+    };
+    li.querySelector("div").append(btn);
+    ul.append(li);
+  });
+}
+
+/* Rewards */
+function renderRewards(){
+  const s = stars();
+  const tasks = Object.values(state.tasks).filter(Boolean).length;
+  const weeks = Object.values(state.weeks).filter(Boolean).length;
+  const books = Object.values(state.books).filter(Boolean).length;
+  document.getElementById("stats").innerHTML =
+    '<div><b>'+weeks+'/12</b><small>недель</small></div><div><b>'+tasks+'/48</b><small>заданий</small></div><div><b>'+books+'/'+BOOKS.length+'</b><small>книг</small></div>';
+  const ul = document.getElementById("rankList"); ul.innerHTML = "";
+  RANKS.forEach((r,i)=>{
+    const got = s >= r.at;
+    const li = el("li","rankrow"+(got?" got":""));
+    li.innerHTML = '<div class="top"><span class="rn"></span><span class="rs"></span></div>';
+    li.querySelector(".rn").textContent = (got?"★ ":"")+r.name;
+    li.querySelector(".rs").textContent = r.at===0 ? "старт" : "от "+r.at+" ★";
+    if(i>0){
+      const inp = document.createElement("input");
+      inp.placeholder = "Приз за этот ранг, например: поход в кино";
+      inp.setAttribute("aria-label","Приз за ранг «"+r.name+"»");
+      inp.value = state.rewards[r.name] || "";
+      inp.addEventListener("change", ()=>{ state.rewards[r.name] = inp.value.trim(); save(); });
+      li.append(inp);
+    }
+    ul.append(li);
+  });
+}
+const resetBtn = document.getElementById("resetBtn");
+let armTimer = null;
+resetBtn.onclick = ()=>{
+  if(!resetBtn.classList.contains("armed")){
+    resetBtn.classList.add("armed"); resetBtn.textContent = "Нажми ещё раз, чтобы стереть всё";
+    armTimer = setTimeout(()=>{ resetBtn.classList.remove("armed"); resetBtn.textContent = "Сбросить весь прогресс"; }, 4000);
+    return;
+  }
+  clearTimeout(armTimer);
+  const rewards = state.rewards;
+  state = {tasks:{}, weeks:{}, books:{}, extra:{}, rewards, updatedAt:0}; save();
+  resetBtn.classList.remove("armed"); resetBtn.textContent = "Сбросить весь прогресс";
+  renderAll(); toast("Прогресс сброшен. Призы сохранены");
+};
+
+/* Nav */
+function showView(name){
+  ["path","week","books","rewards"].forEach(n=>document.getElementById("view-"+n).hidden = n!==name);
+  const tab = name==="week" ? "path" : name;
+  document.querySelectorAll(".tab").forEach(t=>{ if(t.dataset.tab===tab) t.setAttribute("aria-current","page"); else t.removeAttribute("aria-current"); });
+  if(name==="path") renderPath();
+  if(name==="books") renderBooks();
+  if(name==="rewards") renderRewards();
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click", ()=>{ showView(t.dataset.tab); window.scrollTo(0,0); }));
+
+/* Helpers */
+function el(tag, cls){ const e = document.createElement(tag); if(cls) e.className = cls; return e; }
+let toastTimer;
+function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("show"), 2600); }
+function celebrate(){
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const box = document.getElementById("burst"); box.innerHTML = "";
+  const coin = document.querySelector(".coin").getBoundingClientRect();
+  const x0 = coin.left + coin.width/2, y0 = Math.max(coin.top + coin.height/2, 80);
+  for(let k=0;k<14;k++){
+    const s = document.createElement("span"); s.textContent = "★";
+    const a = (Math.PI*2)*k/14, d = 70 + Math.random()*60;
+    s.style.left = x0+"px"; s.style.top = y0+"px";
+    s.style.setProperty("--dx", Math.cos(a)*d+"px"); s.style.setProperty("--dy", Math.sin(a)*d+"px");
+    box.append(s);
+  }
+  setTimeout(()=>box.innerHTML="", 1200);
+}
+
+/* Banknote guilloche */
+(function(){
+  const svg = document.querySelector(".guilloche");
+  const rings = [[150,9,26,"#E2B24A"],[118,13,18,"currentColor"],[86,7,14,"#E2B24A"],[58,11,10,"currentColor"]];
+  let out = "";
+  rings.forEach(([R,k,amp,col])=>{
+    for(let p=0;p<3;p++){
+      let d = "";
+      for(let t=0;t<=720;t++){
+        const a = t/720*Math.PI*2;
+        const r = R + amp*Math.sin(k*a + p*2.1);
+        d += (t?"L":"M")+(r*Math.cos(a)).toFixed(1)+" "+(r*Math.sin(a)).toFixed(1);
+      }
+      out += '<path d="'+d+'Z" fill="none" stroke="'+col+'" stroke-width="0.8"/>';
+    }
+  });
+  svg.innerHTML = out;
+})();
+
+function renderAll(){ renderHero(); renderPath(); if(!document.getElementById("view-books").hidden) renderBooks(); if(!document.getElementById("view-rewards").hidden) renderRewards(); if(!document.getElementById("view-week").hidden) renderWeek(); }
+
+
+/* Android back button */
+window.appBack = function(){
+  if(!document.getElementById("view-path").hidden) return false;
+  showView("path"); window.scrollTo(0,0); return true;
+};
+
+loadLocal();
+renderAll();
+
+/* Optional account sync */
+(async ()=>{
+  try{
+    if(!window.claude || !window.claude.use) return;
+    const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if(!db || !user) return;
+    const uid = await user.id();
+    if(!uid) return;
+    dbRef = db.doc("data/users/"+uid+"/progress");
+    const snap = await dbRef.get();
+    if(snap.exists){
+      const remote = snap.data();
+      if(remote && (remote.updatedAt||0) > (state.updatedAt||0)){
+        state = Object.assign({tasks:{}, weeks:{}, books:{}, extra:{}, rewards:{}}, remote);
+        try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+        renderAll();
+      }else if((state.updatedAt||0) > 0){ pushDb(); }
+    }else if((state.updatedAt||0) > 0){ pushDb(); }
+    document.getElementById("syncNote").textContent = "Прогресс синхронизируется с аккаунтом";
+  }catch(e){ dbRef = null; }
+})();
+</script>
+</body>
+</html>

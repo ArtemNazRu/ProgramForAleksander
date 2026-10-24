@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="forest">#1F4A38</color>
+    <color name="forest_dark">#13301F</color>
+    <color name="paper">#E9F0E7</color>
+    <color name="paper_dark">#0E1813</color>
+    <color name="ic_launcher_background">#1F4A38</color>
+</resources>
